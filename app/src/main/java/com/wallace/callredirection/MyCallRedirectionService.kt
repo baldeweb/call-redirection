@@ -19,8 +19,8 @@ class MyCallRedirectionService : CallRedirectionService() {
     override fun onPlaceCall(handle: Uri, initialPhoneAccount: PhoneAccountHandle, allowInteractiveResponse: Boolean) {
         val phoneNumber = handle.toString().replace("handle:", "").replace("tel:", "")
         Log.d("LOG", "PhoneNumber: $phoneNumber")
-        Log.d("LOG", "\n" +
-                "handle:$handle,\n" +
+        Log.d("LOG",
+                "\nhandle:$handle,\n" +
                 "initialPhoneAccount:$initialPhoneAccount,\n" +
                 "allowInteractiveResponse:$allowInteractiveResponse")
         if (phoneNumber == "55555") {
