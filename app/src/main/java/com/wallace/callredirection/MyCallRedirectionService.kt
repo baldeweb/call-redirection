@@ -1,11 +1,8 @@
 package com.wallace.callredirection
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.telecom.CallRedirectionService
@@ -28,6 +25,8 @@ class MyCallRedirectionService : CallRedirectionService() {
                 cancelCall()
                 sendBroadcast(Intent().apply { action = "ATTENDANCE_REDIRECT_FINISH_CALL" })
             }, 1000)
+        } else {
+            super.placeCallUnmodified()
         }
     }
 }
