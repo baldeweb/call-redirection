@@ -13,4 +13,8 @@ class AttendanceActivity : AppCompatActivity() {
 
         binding.tvwTitle.text = "TELA DE\nATENDIMENTO"
     }
+
+    override fun onBackPressed() {
+        finishAffinity()
+    }
 }

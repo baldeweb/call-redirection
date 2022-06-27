@@ -2,6 +2,7 @@ package com.wallace.callredirection
 
 import android.app.Activity
 import android.app.role.RoleManager
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
@@ -11,8 +12,8 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-
 
 class MainActivity : AppCompatActivity() {
     private var receiver: AttendanceReceiver? = null
@@ -35,14 +36,31 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (!Settings.canDrawOverlays(this)) {
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName")
-            )
-            resultLauncher.launch(intent)
+            showPermissionDialog()
         } else {
             startReceiver()
         }
+    }
+
+    private fun showPermissionDialog() {
+        AlertDialog.Builder(this).apply {
+            setTitle("Precisamos de sua permissão")
+            setMessage("O motivo é porque sim, aprova logo ai.")
+            setPositiveButton("ok") { _, _ ->
+                navigateSettingsPermission()
+            }
+            setNegativeButton("No, thanks") { _, _ ->
+                return@setNegativeButton
+            }
+        }.show()
+    }
+
+    private fun navigateSettingsPermission() {
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:$packageName")
+        )
+        resultLauncher.launch(intent)
     }
 
     private fun startReceiver() {
