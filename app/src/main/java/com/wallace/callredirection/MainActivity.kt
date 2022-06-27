@@ -8,11 +8,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -105,19 +107,24 @@ class MainActivity : AppCompatActivity() {
             requestCallRedirectionPermission(RoleManager.ROLE_CALL_REDIRECTION)
         }
 
-        receiver = AttendanceReceiver()
-        registerReceiver(receiver, IntentFilter("ATTENDANCE_REDIRECT_FINISH_CALL").apply {
-            addAction("android.intent.action.PHONE_STATE")
-            addAction(Intent.ACTION_NEW_OUTGOING_CALL)
-            priority = 1000
-        })
-        receiver?.onCallFinished = {
-            Log.d("LOG", "onCallFinished")
-            runOnUiThread {
+        if (receiver == null) {
+            receiver = AttendanceReceiver()
+            registerReceiver(receiver, IntentFilter("ATTENDANCE_REDIRECT_FINISH_CALL").apply {
+                addAction("android.intent.action.PHONE_STATE")
+                addAction(Intent.ACTION_NEW_OUTGOING_CALL)
+                priority = 1000
+            })
+            receiver?.onCallFinished = {
+                Log.d("LOG", "onCallFinished")
                 startActivity(Intent("android.navigation.attendance").apply {
                     setPackage(packageName)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 })
+            }
+            receiver?.onRequestPermission = {
+                if (isGreaterThanOrEqualsAndroidO()) {
+                    requestPermissionLauncher.launch(arrayOf(ANSWER_PHONE_CALLS))
+                }
             }
         }
     }

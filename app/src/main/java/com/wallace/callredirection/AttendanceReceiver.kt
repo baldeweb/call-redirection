@@ -31,7 +31,6 @@ class AttendanceReceiver : BroadcastReceiver() {
         } else {
             val number = intent?.extras?.getString("incoming_number")
             Log.d("LOG", "[BroadcastReceiver] - PhoneNumber: $number")
-            resultData = null
             onCallFinished.invoke()
             val tm: TelecomManager = ctx?.getSystemService(TELECOM_SERVICE) as TelecomManager
             if (ActivityCompat.checkSelfPermission(
