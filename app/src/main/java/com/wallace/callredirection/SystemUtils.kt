@@ -11,6 +11,7 @@ object SystemUtils {
     fun isGreaterThanOrEqualsAndroidO() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
     fun isGreaterThanOrEqualsAndroidP() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
     fun isGreaterThanOrEqualsAndroidQ() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    fun isLessThanOrEqualsAndroidQ() = Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
 
     fun AppCompatActivity.showAlertDialog(
         title: String,
@@ -30,25 +31,5 @@ object SystemUtils {
                 negativeButtonClick.invoke()
             }
         }.show()
-    }
-
-    fun Context.isServiceRunning(serviceClass: KClass<*>): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
-        for (service in (manager?.getRunningServices(Int.MAX_VALUE) ?: listOf())) {
-            if (serviceClass.simpleName == service.service.className) {
-                return true
-            }
-        }
-        return false
-    }
-
-    fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
-        for (service in (manager?.getRunningServices(Int.MAX_VALUE) ?: listOf())) {
-            if (serviceClass.simpleName == service.service.className) {
-                return true
-            }
-        }
-        return false
     }
 }

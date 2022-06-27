@@ -54,23 +54,14 @@
         </service>
 
         <receiver
-            android:name=".BootSystemReceiver"
-            android:enabled="true"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
             android:name=".AttendanceReceiver"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
                 <action android:name="android.intent.action.PHONE_STATE" />
-
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.REBOOT"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>

@@ -17,7 +17,6 @@ import com.wallace.callredirection.RoleCallRedirectionManager.Companion.isRedire
 import com.wallace.callredirection.RoleCallRedirectionManager.Companion.requestCallRedirectionPermission
 import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidO
 import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidQ
-import com.wallace.callredirection.SystemUtils.isServiceRunning
 import com.wallace.callredirection.SystemUtils.showAlertDialog
 
 class MainActivity : AppCompatActivity() {
@@ -44,6 +43,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (!hasReadPhoneStatePermission()) {
+            if (isGreaterThanOrEqualsAndroidO()) {
+                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE, ANSWER_PHONE_CALLS))
+            } else {
+                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE))
+            }
+        }
     }
 
     override fun onStart() {
@@ -80,10 +87,8 @@ class MainActivity : AppCompatActivity() {
     private fun startCallService() {
         when {
             isGreaterThanOrEqualsAndroidQ() -> {
-                if (!isServiceRunning(NumberCallRedirectionService::class.java)) {
-                    val intent = Intent(this, NumberCallRedirectionService::class.java)
-                    startForegroundService(intent)
-                }
+                val intent = Intent(this, NumberCallRedirectionService::class.java)
+                startService(intent)
             }
             else -> return
         }
@@ -128,8 +133,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(receiver)
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        unregisterReceiver(receiver)
+//    }
 }
