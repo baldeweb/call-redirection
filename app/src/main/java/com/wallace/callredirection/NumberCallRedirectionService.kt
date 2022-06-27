@@ -21,7 +21,7 @@ class NumberCallRedirectionService : CallRedirectionService() {
         val phoneNumber = handle.toString()
             .replace("handle:", "")
             .replace("tel:", "")
-        Log.d("LOG", "[CallRedirectionService] - PhoneNumber: $phoneNumber")
+        Log.d("LOG", "[NumberCallRedirectionService] - PhoneNumber: $phoneNumber")
         catchNumberRedirect(phoneNumber)
     }
 

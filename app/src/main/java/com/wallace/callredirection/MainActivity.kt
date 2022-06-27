@@ -6,22 +6,19 @@ import android.app.Activity
 import android.app.role.RoleManager
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.wallace.callredirection.PermissionUtils.hasReadPhoneStatePermission
+import com.wallace.callredirection.RoleCallRedirectionManager.Companion.isRedirection
+import com.wallace.callredirection.RoleCallRedirectionManager.Companion.requestCallRedirectionPermission
 import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidO
 import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidQ
-
+import com.wallace.callredirection.SystemUtils.isServiceRunning
+import com.wallace.callredirection.SystemUtils.showAlertDialog
 
 class MainActivity : AppCompatActivity() {
     private var receiver: AttendanceReceiver? = null
@@ -64,9 +61,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun startSystem() {
         if (!Settings.canDrawOverlays(this)) {
-            showPermissionDialog()
+            showAlertDialog(
+                "Precisamos de sua permissão",
+                "O motivo é porque sim, aprova logo ai.",
+                "ok", {
+                    navigateSettingsPermission()
+                },
+                "no, thanks", {
+                    return@showAlertDialog
+                }
+            )
         } else {
-            startReceiver()
+            startAttendanceReceiver()
             startCallService()
         }
     }
@@ -74,24 +80,13 @@ class MainActivity : AppCompatActivity() {
     private fun startCallService() {
         when {
             isGreaterThanOrEqualsAndroidQ() -> {
-                val intent = Intent(this, NumberCallRedirectionService::class.java)
-                startForegroundService(intent)
+                if (!isServiceRunning(NumberCallRedirectionService::class.java)) {
+                    val intent = Intent(this, NumberCallRedirectionService::class.java)
+                    startForegroundService(intent)
+                }
             }
             else -> return
         }
-    }
-
-    private fun showPermissionDialog() {
-        AlertDialog.Builder(this).apply {
-            setTitle("Precisamos de sua permissão")
-            setMessage("O motivo é porque sim, aprova logo ai.")
-            setPositiveButton("ok") { _, _ ->
-                navigateSettingsPermission()
-            }
-            setNegativeButton("No, thanks") { _, _ ->
-                return@setNegativeButton
-            }
-        }.show()
     }
 
     private fun navigateSettingsPermission() {
@@ -102,9 +97,13 @@ class MainActivity : AppCompatActivity() {
         resultLauncher.launch(intent)
     }
 
-    private fun startReceiver() {
-        if (!isRedirection() && isGreaterThanOrEqualsAndroidQ()) {
-            requestCallRedirectionPermission(RoleManager.ROLE_CALL_REDIRECTION)
+    private fun startAttendanceReceiver() {
+        if (!isRedirection(this) && isGreaterThanOrEqualsAndroidQ()) {
+            requestCallRedirectionPermission(
+                this,
+                resultLauncher,
+                RoleManager.ROLE_CALL_REDIRECTION
+            )
         }
 
         if (receiver == null) {
@@ -127,48 +126,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun isRedirection(): Boolean {
-        return if (isGreaterThanOrEqualsAndroidQ()) {
-            isRoleHeldByApp(RoleManager.ROLE_CALL_REDIRECTION)
-        } else {
-            false
-        }
-    }
-
-    private fun isRoleHeldByApp(roleName: String): Boolean {
-        val roleManager: RoleManager?
-        if (isGreaterThanOrEqualsAndroidQ()) {
-            roleManager = getSystemService(RoleManager::class.java)
-            return roleManager.isRoleHeld(roleName)
-        }
-        return false
-    }
-
-    private fun requestCallRedirectionPermission(roleName: String) {
-        val roleManager: RoleManager?
-        if (isGreaterThanOrEqualsAndroidQ()) {
-            if (callRedirectionRoleAvailable(roleName)) {
-                roleManager = getSystemService(RoleManager::class.java)
-                resultLauncher.launch(roleManager.createRequestRoleIntent(roleName))
-            } else {
-                Toast.makeText(
-                    this,
-                    "Redirection call with role in not available",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    private fun callRedirectionRoleAvailable(roleName: String): Boolean {
-        val roleManager: RoleManager?
-        if (isGreaterThanOrEqualsAndroidQ()) {
-            roleManager = getSystemService(RoleManager::class.java)
-            return roleManager.isRoleAvailable(roleName)
-        }
-        return false
     }
 
     override fun onDestroy() {
