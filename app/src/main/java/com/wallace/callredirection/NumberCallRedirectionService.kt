@@ -11,15 +11,21 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.Q)
-class MyCallRedirectionService : CallRedirectionService() {
+class NumberCallRedirectionService : CallRedirectionService() {
 
-    override fun onPlaceCall(handle: Uri, initialPhoneAccount: PhoneAccountHandle, allowInteractiveResponse: Boolean) {
-        val phoneNumber = handle.toString().replace("handle:", "").replace("tel:", "")
-        Log.d("LOG", "PhoneNumber: $phoneNumber")
-        Log.d("LOG",
-                "\nhandle:$handle,\n" +
-                "initialPhoneAccount:$initialPhoneAccount,\n" +
-                "allowInteractiveResponse:$allowInteractiveResponse")
+    override fun onPlaceCall(
+        handle: Uri,
+        initialPhoneAccount: PhoneAccountHandle,
+        allowInteractiveResponse: Boolean
+    ) {
+        val phoneNumber = handle.toString()
+            .replace("handle:", "")
+            .replace("tel:", "")
+        Log.d("LOG", "[CallRedirectionService] - PhoneNumber: $phoneNumber")
+        catchNumberRedirect(phoneNumber)
+    }
+
+    private fun catchNumberRedirect(phoneNumber: String) {
         if (phoneNumber == "55555") {
             Handler(Looper.getMainLooper()).postDelayed({
                 cancelCall()

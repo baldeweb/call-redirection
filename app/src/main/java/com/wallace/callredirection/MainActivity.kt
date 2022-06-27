@@ -1,12 +1,13 @@
 package com.wallace.callredirection
 
+import android.Manifest.permission.ANSWER_PHONE_CALLS
+import android.Manifest.permission.READ_PHONE_STATE
 import android.app.Activity
 import android.app.role.RoleManager
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -14,6 +15,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidO
+import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidQ
+
 
 class MainActivity : AppCompatActivity() {
     private var receiver: AttendanceReceiver? = null
@@ -28,6 +33,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (!permissions.filter { it.value == true }.isNullOrEmpty()) {
+            startSystem()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,10 +48,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        if (ContextCompat.checkSelfPermission(
+                this, READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED) {
+            if (isGreaterThanOrEqualsAndroidO()) {
+                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE, ANSWER_PHONE_CALLS))
+            } else {
+                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE))
+            }
+        } else {
+            startSystem()
+        }
+    }
+
+    private fun startSystem() {
         if (!Settings.canDrawOverlays(this)) {
             showPermissionDialog()
         } else {
             startReceiver()
+            startCallService()
+        }
+    }
+
+    private fun startCallService() {
+        when {
+            isGreaterThanOrEqualsAndroidQ() -> {
+                val intent = Intent(this, NumberCallRedirectionService::class.java)
+                startForegroundService(intent)
+            }
+            else -> return
         }
     }
 
@@ -71,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         receiver = AttendanceReceiver()
         registerReceiver(receiver, IntentFilter("ATTENDANCE_REDIRECT_FINISH_CALL").apply {
             addAction("android.intent.action.PHONE_STATE")
-            addAction("android.intent.action.NEW_OUTGOING_CALL")
+            addAction(Intent.ACTION_NEW_OUTGOING_CALL)
             priority = 1000
         })
         receiver?.onCallFinished = {
@@ -84,8 +122,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    private fun isGreaterThanOrEqualsAndroidQ() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     private fun isRedirection(): Boolean {
         return if (isGreaterThanOrEqualsAndroidQ()) {

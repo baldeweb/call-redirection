@@ -3,11 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.wallace.callredirection">
 
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
     <uses-permission
         android:name="android.permission.BIND_CALL_REDIRECTION_SERVICE"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -37,10 +42,12 @@
         </activity>
 
         <service
-            android:name=".MyCallRedirectionService"
+            android:name=".NumberCallRedirectionService"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.BIND_CALL_REDIRECTION_SERVICE">
+            android:directBootAware="true"
+            android:permission="android.permission.BIND_CALL_REDIRECTION_SERVICE"
+            tools:targetApi="n">
             <intent-filter>
                 <action android:name="android.telecom.CallRedirectionService" />
             </intent-filter>
@@ -50,7 +57,12 @@
             android:name=".AttendanceReceiver"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.REBOOT"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
