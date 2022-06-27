@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.wallace.callredirection.PermissionUtils.hasReadPhoneStatePermission
 import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidO
 import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidQ
 
@@ -48,9 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (ContextCompat.checkSelfPermission(
-                this, READ_PHONE_STATE
-            ) != PackageManager.PERMISSION_GRANTED) {
+        if (!hasReadPhoneStatePermission()) {
             if (isGreaterThanOrEqualsAndroidO()) {
                 requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE, ANSWER_PHONE_CALLS))
             } else {
