@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.role.RoleManager
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 
+
 class MainActivity : AppCompatActivity() {
     private var receiver: AttendanceReceiver? = null
 
@@ -19,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            Log.d("LOG", "ResultLauncher: OK")
+            Log.d("LOG", "ResultLauncher: OK | Data: ${result.data}")
         } else {
             Log.d("LOG", "ResultLauncher: NOK")
         }
@@ -33,7 +35,11 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (!Settings.canDrawOverlays(this)) {
-            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+            resultLauncher.launch(intent)
         } else {
             startReceiver()
         }
@@ -53,7 +59,10 @@ class MainActivity : AppCompatActivity() {
         receiver?.onCallFinished = {
             Log.d("LOG", "onCallFinished")
             runOnUiThread {
-                startActivity(Intent(this, AttendanceActivity::class.java))
+                startActivity(Intent("android.navigation.attendance").apply {
+                    setPackage(packageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
             }
         }
     }
