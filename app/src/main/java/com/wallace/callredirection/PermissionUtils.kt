@@ -9,4 +9,8 @@ object PermissionUtils {
     fun Context.hasReadPhoneStatePermission() = ContextCompat.checkSelfPermission(
         this, Manifest.permission.READ_PHONE_STATE
     ) == PackageManager.PERMISSION_GRANTED
+
+    fun Context.hasReadCallLogPermission() = ContextCompat.checkSelfPermission(
+        this, Manifest.permission.READ_CALL_LOG
+    ) == PackageManager.PERMISSION_GRANTED
 }

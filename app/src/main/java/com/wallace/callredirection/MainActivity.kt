@@ -1,7 +1,6 @@
 package com.wallace.callredirection
 
-import android.Manifest.permission.ANSWER_PHONE_CALLS
-import android.Manifest.permission.READ_PHONE_STATE
+import android.Manifest.permission.*
 import android.app.Activity
 import android.app.role.RoleManager
 import android.content.Intent
@@ -12,6 +11,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.wallace.callredirection.PermissionUtils.hasReadCallLogPermission
 import com.wallace.callredirection.PermissionUtils.hasReadPhoneStatePermission
 import com.wallace.callredirection.RoleCallRedirectionManager.Companion.isRedirection
 import com.wallace.callredirection.RoleCallRedirectionManager.Companion.requestCallRedirectionPermission
@@ -44,22 +44,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (!hasReadPhoneStatePermission()) {
+        if (!hasReadPhoneStatePermission() || !hasReadCallLogPermission()) {
             if (isGreaterThanOrEqualsAndroidO()) {
-                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE, ANSWER_PHONE_CALLS))
+                requestPermissionLauncher.launch(
+                    arrayOf(
+                        READ_CALL_LOG,
+                        READ_PHONE_STATE,
+                        ANSWER_PHONE_CALLS
+                    )
+                )
             } else {
-                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE))
+                requestPermissionLauncher.launch(arrayOf(READ_CALL_LOG, READ_PHONE_STATE))
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        if (!hasReadPhoneStatePermission()) {
+        if (!hasReadPhoneStatePermission() || !hasReadCallLogPermission()) {
             if (isGreaterThanOrEqualsAndroidO()) {
-                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE, ANSWER_PHONE_CALLS))
+                requestPermissionLauncher.launch(
+                    arrayOf(
+                        READ_CALL_LOG,
+                        READ_PHONE_STATE,
+                        ANSWER_PHONE_CALLS
+                    )
+                )
             } else {
-                requestPermissionLauncher.launch(arrayOf(READ_PHONE_STATE))
+                requestPermissionLauncher.launch(arrayOf(READ_CALL_LOG, READ_PHONE_STATE))
             }
         } else {
             startSystem()
@@ -133,8 +145,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        unregisterReceiver(receiver)
-//    }
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
+    }
 }

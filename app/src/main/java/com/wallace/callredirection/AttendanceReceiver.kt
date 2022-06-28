@@ -1,18 +1,11 @@
 package com.wallace.callredirection
 
-import android.Manifest.permission.ANSWER_PHONE_CALLS
-import android.content.BroadcastReceiver
-import android.content.ComponentName
-import android.content.Context
-import android.content.Context.TELECOM_SERVICE
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.telecom.TelecomManager
+import android.content.*
+import android.os.Handler
+import android.os.Looper
+import android.telephony.TelephonyManager
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidP
 import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidQ
-import kotlin.system.exitProcess
 
 
 class AttendanceReceiver : BroadcastReceiver() {
@@ -26,26 +19,28 @@ class AttendanceReceiver : BroadcastReceiver() {
                     "com.wallace.callredirection",
                     "com.wallace.callredirection.AttendanceActivity"
                 )
+                Log.d("LOG", "1 [BroadcastReceiver] - PhoneNumberIncoming")
                 onCallFinished.invoke()
             }
         } else {
             val number = intent?.extras?.getString("incoming_number")
-            Log.d("LOG", "[BroadcastReceiver] - PhoneNumber: $number")
-            onCallFinished.invoke()
-            val tm: TelecomManager = ctx?.getSystemService(TELECOM_SERVICE) as TelecomManager
-            if (ActivityCompat.checkSelfPermission(
-                    ctx, ANSWER_PHONE_CALLS
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                onRequestPermission.invoke()
-            } else {
-                if (isGreaterThanOrEqualsAndroidP()) {
-                    tm.endCall()
-                } else {
-                    exitProcess(0)
-                }
-            }
+            val state = intent?.getStringExtra(TelephonyManager.EXTRA_STATE) ?: ""
+
+            Log.d("LOG", "2 [BroadcastReceiver] - number: $number")
+            Log.d("LOG", "2 [BroadcastReceiver] - state: $state")
+
+            if (state == "OFFHOOK" && !number.isNullOrEmpty())
+                redirectAttendance(ctx)
         }
+    }
+
+    private fun redirectAttendance(ctx: Context?) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            ctx?.startActivity(Intent("android.navigation.attendance").apply {
+                setPackage(ctx.packageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            })
+        }, 1000)
     }
 
 }
