@@ -1,4 +1,4 @@
-package com.wallace.callredirection
+package com.wallace.callredirection.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
