@@ -1,11 +1,8 @@
-package com.wallace.callredirection
+package com.wallace.callredirection.utils
 
-import android.app.ActivityManager
-import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import kotlin.reflect.KClass
 
 object SystemUtils {
     fun isGreaterThanOrEqualsAndroidO() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O

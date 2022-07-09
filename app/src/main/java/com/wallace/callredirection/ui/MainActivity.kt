@@ -1,4 +1,4 @@
-package com.wallace.callredirection
+package com.wallace.callredirection.ui
 
 import android.Manifest.permission.*
 import android.app.Activity
@@ -11,13 +11,16 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.wallace.callredirection.PermissionUtils.hasReadCallLogPermission
-import com.wallace.callredirection.PermissionUtils.hasReadPhoneStatePermission
-import com.wallace.callredirection.RoleCallRedirectionManager.Companion.isRedirection
-import com.wallace.callredirection.RoleCallRedirectionManager.Companion.requestCallRedirectionPermission
-import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidO
-import com.wallace.callredirection.SystemUtils.isGreaterThanOrEqualsAndroidQ
-import com.wallace.callredirection.SystemUtils.showAlertDialog
+import com.wallace.callredirection.receiver.AttendanceReceiver
+import com.wallace.callredirection.service.NumberCallRedirectionService
+import com.wallace.callredirection.R
+import com.wallace.callredirection.utils.PermissionUtils.hasReadCallLogPermission
+import com.wallace.callredirection.utils.PermissionUtils.hasReadPhoneStatePermission
+import com.wallace.callredirection.ui.RoleCallRedirectionManager.Companion.isRedirection
+import com.wallace.callredirection.ui.RoleCallRedirectionManager.Companion.requestCallRedirectionPermission
+import com.wallace.callredirection.utils.SystemUtils.isGreaterThanOrEqualsAndroidO
+import com.wallace.callredirection.utils.SystemUtils.isGreaterThanOrEqualsAndroidQ
+import com.wallace.callredirection.utils.SystemUtils.showAlertDialog
 
 class MainActivity : AppCompatActivity() {
     private var receiver: AttendanceReceiver? = null

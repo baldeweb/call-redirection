@@ -1,4 +1,4 @@
-package com.wallace.callredirection
+package com.wallace.callredirection.service
 
 import android.content.Intent
 import android.net.Uri
@@ -9,7 +9,6 @@ import android.telecom.CallRedirectionService
 import android.telecom.PhoneAccountHandle
 import android.util.Log
 import androidx.annotation.RequiresApi
-import com.wallace.callredirection.SystemUtils.isLessThanOrEqualsAndroidQ
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class NumberCallRedirectionService : CallRedirectionService() {
