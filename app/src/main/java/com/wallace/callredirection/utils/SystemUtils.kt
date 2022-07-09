@@ -6,9 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 object SystemUtils {
     fun isGreaterThanOrEqualsAndroidO() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-    fun isGreaterThanOrEqualsAndroidP() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
     fun isGreaterThanOrEqualsAndroidQ() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-    fun isLessThanOrEqualsAndroidQ() = Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
 
     fun AppCompatActivity.showAlertDialog(
         title: String,
